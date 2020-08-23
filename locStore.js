@@ -137,7 +137,7 @@ export const locStore = {
     return entries;
   },
 
-  getKeysByValue(value, callback = emptyFunc) {
+  getKeysByValue(value, callback = emptyFunc) { 
     validateCallback(callback);
 
     const store = this.getAllStore();
@@ -158,7 +158,7 @@ export const locStore = {
     return len;
   },
 
-  getValuesByKeys(params) {
+  getValuesByKeys(params) { 
     params = {
       callback: emptyFunc,
       returnUndefined: false,
@@ -223,6 +223,74 @@ export const locStore = {
     items.map( obj => {
       this.setFromObjectOfValues(obj, rewrite);
     } );
+
+    callback();
+  },
+
+  removeItemsByKeys(params) {
+    params = {
+      callback: emptyFunc,
+      keys: [],
+      ...params
+    }
+
+    const { callback, keys } = params;
+
+    validateCallback(callback);
+    validateType('array', keys);
+
+    const store = this.getAllStore();
+
+    keys.map( key => {
+      validateKey(key);
+      
+      if(store[key] !== undefined) {
+        this.removeItem(key);
+      }
+    } );
+
+    callback();
+  },
+
+  removeItemByValue(value, callback = emptyFunc) {
+    validateValue(value);
+    validateCallback(callback);
+
+    const store = this.getAllStore();
+
+    for(let k in store) {
+      store[k] === value && this.removeItem(k);
+    }
+
+    callback();
+  },
+
+  removeItemsByValues(params) {
+    params = {
+      callback: emptyFunc,
+      values: [],
+      ...params
+    }
+
+    const { callback, values } = params;
+
+    validateCallback(callback);
+    validateType('array', values);
+
+    values.map( value => this.removeItemByValue(value) );
+
+    callback();
+  },
+
+  map(func, callback = emptyFunc) {
+    validateType('function', func);
+    validateCallback(callback)
+
+    const store = this.getAllStore();
+
+    for(let k in store) {
+      func.call(null, store[k], k);
+    }
 
     callback();
   }
